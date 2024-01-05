@@ -1,12 +1,31 @@
 #!/usr/bin/env bash
-# sets up the web servers for the deployment of web_static
+# sets up my web servers for the deployment of web_static
 
-sudo apt-get -y update
-sudo apt-get -y upgrade
-sudo apt-get -y install nginx
-sudo mkdir -p /data/web_static/releases/test /data/web_static/shared
-echo "This is a test" | sudo tee /data/web_static/releases/test/index.html
+# Install Nginx if not already installed
+sudo apt-get update
+sudo apt-get install -y nginx
+
+# Create folders if not already exists
+sudo mkdir -p /data/web_static/shared/
+sudo mkdir -p /data/web_static/releases/test/
+
+# Create a fake HTML file for testing
+echo "<html>
+  <head>
+  </head>
+  <body>
+    Holberton School
+  </body>
+</html>" >> /data/web_static/releases/test/index.html
+
+# Create & recreate a symbolic link
 sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
-sudo chown -hR ubuntu:ubuntu /data/
-sudo sed -i '38i\\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t}\n' /etc/nginx/sites-available/default
-sudo service nginx start
+
+# Give ownership to ubuntu user and group
+sudo chown -R ubuntu:ubuntu /data/
+
+# update Nginx config to serve /data/web_static/current at /hbnb_static/
+sudo sed -i "26i \\\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t}\n" /etc/nginx/sites-available/default
+
+# Restart Nginx to apply changes
+sudo service nginx restart
